@@ -130,6 +130,15 @@ section h3 {
     border-radius: 5px;
 }
 
+.conclusion {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1.2rem; /* 아주 조금 키움 */
+    font-weight: 500;
+    text-align: center;
+    margin-top: 30px; /* 위쪽 여백 추가 */
+    color: #fff;
+}
+
 .navigation-buttons {
     display: flex;
     justify-content: space-between;
@@ -233,6 +242,10 @@ main section#demo > #serverStatus {
     .intro-item {
         width: 80%; /* Make items wider on small screens */
         max-width: 300px;
+    }
+
+    .conclusion {
+        font-size: 1.1rem; /* 모바일에서는 조금 작게 */
     }
 
     main section {
