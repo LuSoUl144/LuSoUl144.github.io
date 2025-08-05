@@ -71,11 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sensor Handling ---
 
-    // For iOS devices
+    // For iOS devices - use accelerationIncludingGravity for better reliability
     function handleDeviceMotion(event) {
-        const accel = event.acceleration;
-        if (accel && accel.x !== null) {
-            addData(accel.x, accel.y, accel.z);
+        const accel = event.accelerationIncludingGravity;
+        if (accel && typeof accel.x === 'number') {
+            const round = (v) => v ? parseFloat(v.toFixed(2)) : 0;
+            addData(round(accel.x), round(accel.y), round(accel.z));
         }
     }
 
@@ -102,29 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
         permissionStatus.textContent = '센서가 비활성화되었습니다.';
     }
 
-    startStopButton.addEventListener('click', () => {
-        if (isRunning) {
-            stopSensor();
-            return;
-        }
-
-        // Path A: For iOS 13+ (and iOS 18+)
-        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-            DeviceMotionEvent.requestPermission()
-                .then(permissionState => {
-                    if (permissionState === 'granted') {
-                        window.addEventListener('devicemotion', handleDeviceMotion);
-                        isRunning = true;
-                        startStopButton.textContent = '실시간 데이터 측정 중지';
-                        permissionStatus.textContent = '센서가 활성화되었습니다. 스마트폰을 움직여보세요.';
-                    } else {
-                        permissionStatus.textContent = '권한 거부됨. Safari 설정 > 개인정보 보호에서 \'크로스-사이트 추적 방지\'가 꺼져 있는지 확인하세요.';
-                    }
-                })
-                .catch(console.error);
-        } 
-        // Path B: For modern browsers like Chrome (Android)
-        else if ('LinearAccelerationSensor' in window) {
+    function startSensor() {
+        // Path A: For modern browsers like Chrome (Android) using Generic Sensor API
+        if ('LinearAccelerationSensor' in window) {
             try {
                 sensor = new LinearAccelerationSensor({ frequency: 10 });
                 sensor.addEventListener('reading', handleSensorReading);
@@ -139,10 +120,46 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 permissionStatus.textContent = `센서 시작 오류: ${error.message}`;
             }
-        } 
-        // Path C: Not supported
-        else {
-            permissionStatus.textContent = '이 기기 또는 브라우저에서는 가속도 센서를 지원하지 않습니다.';
+            return;
+        }
+
+        // Path B: For iOS 13+ which requires permission
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('devicemotion', handleDeviceMotion);
+                        isRunning = true;
+                        startStopButton.textContent = '실시간 데이터 측정 중지';
+                        permissionStatus.textContent = '센서가 활성화되었습니다. 스마트폰을 움직여보세요.';
+                    } else {
+                        permissionStatus.textContent = '권한이 거부되었습니다.';
+                    }
+                })
+                .catch(error => {
+                    permissionStatus.textContent = `권한 요청 오류: ${error.message}`;
+                });
+            return;
+        }
+        
+        // Path C: For older iOS or other browsers supporting DeviceMotionEvent without permission
+        if (typeof DeviceMotionEvent !== 'undefined') {
+             window.addEventListener('devicemotion', handleDeviceMotion);
+             isRunning = true;
+             startStopButton.textContent = '실시간 데이터 측정 중지';
+             permissionStatus.textContent = '센서가 활성화되었습니다. 스마트폰을 움직여보세요.';
+             return;
+        }
+
+        // Path D: Not supported
+        permissionStatus.textContent = '이 기기 또는 브라우저에서는 가속도 센서를 지원하지 않습니다.';
+    }
+
+    startStopButton.addEventListener('click', () => {
+        if (isRunning) {
+            stopSensor();
+        } else {
+            startSensor();
         }
     });
 });
