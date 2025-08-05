@@ -108,8 +108,8 @@ section h3 {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 30%; /* Adjust width to fit three items per row, with some gap */
-    max-width: 200px; /* Max width for each item */
+    width: 32%; /* Adjust width to fit three items per row, with some gap */
+    max-width: 250px; /* Max width for each item */
     padding: 10px;
     border: 1px solid #333;
     border-radius: 8px;
@@ -126,7 +126,7 @@ section h3 {
 .intro-item img {
     width: 100%; /* Image fills its container */
     height: auto;
-    max-width: 150px; /* Max width for the image */
+    max-width: 200px; /* Max width for the image */
     border-radius: 5px;
 }
 
