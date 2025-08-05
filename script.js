@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Slides Navigation (Definitive Stable Version) ---
     function goToSlide(slideIndex) {
+        if (slideIndex < 0 || slideIndex >= slides.length) return;
+
         slides.forEach((slide, index) => {
             slide.style.transform = `translateX(${(index - slideIndex) * 100}%)`;
         });
@@ -44,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSlide = slideIndex;
     }
 
-    prevBtn.addEventListener('click', () => { if (currentSlide > 0) goToSlide(currentSlide - 1); });
-    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); });
+    prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
     
     // Initial setup
     goToSlide(0);
