@@ -27,44 +27,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket;
     let userRole = null;
 
-    // --- Slides Navigation (Robust Animation Logic) ---
-    function showSlide(newIndex, direction) {
-        const oldIndex = currentSlide;
-        if (newIndex === oldIndex) return;
-
-        // Set correct starting positions before transition
-        slides.forEach((slide, i) => {
-            slide.classList.remove('active', 'prev');
-            if (i === oldIndex) {
-                slide.classList.add(direction === 'next' ? 'prev' : 'active');
-            } else if (i === newIndex) {
-                slide.classList.add(direction === 'next' ? 'active' : 'prev');
-            }
+    // --- Slides Navigation (Definitive Stable Version) ---
+    function goToSlide(slideIndex) {
+        slides.forEach((slide, index) => {
+            slide.style.transform = `translateX(${(index - slideIndex) * 100}%)`;
         });
 
-        currentSlide = newIndex;
-
         // Update button states
-        prevBtn.disabled = newIndex === 0;
-        nextBtn.disabled = newIndex === slides.length - 1;
+        prevBtn.disabled = slideIndex === 0;
+        nextBtn.disabled = slideIndex === slides.length - 1;
 
         // Show header only on the first slide
-        mainHeader.style.display = newIndex === 0 ? 'block' : 'none';
+        mainHeader.style.transform = slideIndex === 0 ? 'translateY(0)' : 'translateY(-150%)';
+        mainHeader.style.opacity = slideIndex === 0 ? '1' : '0';
 
         // Initialize chart or connect to server if on the demo slide
-        if (slides[newIndex].id === 'demo') {
+        if (slides[slideIndex].id === 'demo') {
             initializeChart();
             if (!socket) connectToServer();
         }
+        currentSlide = slideIndex;
     }
 
-    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1, 'prev'); });
-    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(currentSlide + 1, 'next'); });
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) goToSlide(currentSlide - 1); });
+    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); });
     
     // Initial setup
-    slides.forEach((s, i) => { if(i !== 0) s.classList.add('prev'); });
-    slides[0].classList.add('active');
-    mainHeader.style.display = 'block';
+    goToSlide(0);
 
     // --- Chart Logic ---
     function initializeChart() {
