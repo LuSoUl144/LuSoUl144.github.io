@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selectors ---
+    const mainHeader = document.getElementById('main-header');
     const slides = document.querySelectorAll('main section');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -26,33 +27,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket;
     let userRole = null;
 
-    // --- Slides Navigation (with new animation classes) ---
-    function showSlide(newIndex) {
+    // --- Slides Navigation (Robust Animation Logic) ---
+    function showSlide(newIndex, direction) {
         const oldIndex = currentSlide;
         if (newIndex === oldIndex) return;
 
-        slides[oldIndex].classList.remove('active');
-        slides[oldIndex].classList.add('prev');
+        // Set correct starting positions before transition
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active', 'prev');
+            if (i === oldIndex) {
+                slide.classList.add(direction === 'next' ? 'prev' : 'active');
+            } else if (i === newIndex) {
+                slide.classList.add(direction === 'next' ? 'active' : 'prev');
+            }
+        });
 
-        slides[newIndex].classList.remove('prev');
-        slides[newIndex].classList.add('active');
-        
         currentSlide = newIndex;
 
+        // Update button states
         prevBtn.disabled = newIndex === 0;
         nextBtn.disabled = newIndex === slides.length - 1;
 
         // Show header only on the first slide
         mainHeader.style.display = newIndex === 0 ? 'block' : 'none';
 
+        // Initialize chart or connect to server if on the demo slide
         if (slides[newIndex].id === 'demo') {
             initializeChart();
             if (!socket) connectToServer();
         }
     }
-    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1); });
-    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(currentSlide + 1); });
-    slides[0].classList.add('active'); // Set initial slide
+
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1, 'prev'); });
+    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(currentSlide + 1, 'next'); });
+    
+    // Initial setup
+    slides.forEach((s, i) => { if(i !== 0) s.classList.add('prev'); });
+    slides[0].classList.add('active');
+    mainHeader.style.display = 'block';
 
     // --- Chart Logic ---
     function initializeChart() {
@@ -74,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isChartInitialized || isPaused) return;
         const time = new Date().toLocaleTimeString();
         chart.data.labels.push(time);
-        chart.data.datasets.forEach((dataset, i) => {
+        chart.data.datasets.forEach((dataset) => {
             const key = dataset.label.toLowerCase();
             dataset.data.push(data[key]);
         });
@@ -92,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chart.update();
     }
 
-    // --- WebSocket Connection ---
+    // --- WebSocket and Sensor Logic (Unchanged) ---
     function connectToServer() {
         socket = io("https://sccs-realtime-server.onrender.com");
         socket.on('connect', () => serverStatus.textContent = '서버에 연결되었습니다.');
@@ -116,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     presenterBtn.addEventListener('click', () => socket.emit('select_role', 'presenter'));
     audienceBtn.addEventListener('click', () => socket.emit('select_role', 'audience'));
 
-    // --- Sensor Logic (for Presenter) ---
     function sensorLoop() {
         if (!isRunning) return;
         if (!isPaused) {

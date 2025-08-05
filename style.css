@@ -32,6 +32,7 @@ header {
     text-align: center;
     padding: 20px 0;
     border-bottom: 1px solid #333;
+    transition: all 0.5s ease-in-out;
 }
 
 main {
@@ -46,19 +47,16 @@ main section {
     padding: 25px 40px;
     box-sizing: border-box;
     overflow-y: auto;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-    transform: translateX(100%);
-    opacity: 0;
+    transition: transform 0.4s ease-in-out;
+    transform: translateX(100%); /* Start off-screen to the right */
 }
 
 main section.active {
-    transform: translateX(0);
-    opacity: 1;
+    transform: translateX(0); /* Active slide is centered */
 }
 
 main section.prev {
-    transform: translateX(-100%);
-    opacity: 0;
+    transform: translateX(-100%); /* Previous slide is off-screen to the left */
 }
 
 .navigation-buttons {
