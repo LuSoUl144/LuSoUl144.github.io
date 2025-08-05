@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- WebSocket Connection ---
     function connectToServer() {
-        socket = io();
+        socket = io("https://sccs-realtime-server.onrender.com");
 
         socket.on('connect', () => serverStatus.textContent = '서버에 연결되었습니다.');
         socket.on('disconnect', () => serverStatus.textContent = '서버 연결이 끊어졌습니다.');
