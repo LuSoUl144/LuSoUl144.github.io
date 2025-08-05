@@ -9,7 +9,6 @@ body {
     background-color: #121212;
     color: #e0e0e0;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -25,126 +24,91 @@ body {
     background: #1e1e1e;
     border: 1px solid #333;
     border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     overflow: hidden;
 }
 
 header {
     text-align: center;
     padding: 20px 0;
-    flex-shrink: 0; /* 헤더 크기 고정 */
-}
-
-header h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    color: #fff;
-}
-
-header h2 {
-    margin: 0;
-    font-size: 1.3rem;
-    font-weight: 300;
-    color: #00aaff;
+    border-bottom: 1px solid #333;
 }
 
 main {
     flex-grow: 1;
     position: relative;
-    overflow: hidden; /* 내부 섹션이 넘치지 않도록 */
 }
 
 main section {
     position: absolute;
     width: 100%;
     height: 100%;
-    padding: 20px 40px;
+    padding: 25px 40px;
     box-sizing: border-box;
+    overflow-y: auto;
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    transform: translateX(100%);
     opacity: 0;
-    visibility: hidden;
-    /* transition: opacity 0.5s ease-in-out; */
-    overflow-y: auto; /* 핵심: 내용이 길면 섹션 안에서만 스크롤 */
-    justify-content: flex-start; /* 스크롤을 위해 상단 정렬 */
 }
 
 main section.active {
+    transform: translateX(0);
     opacity: 1;
-    visibility: visible;
 }
 
-section h3 {
-    color: #00aaff;
-    border-bottom: 2px solid #333;
-    padding-bottom: 10px;
-    margin-top: 0;
-    font-size: 1.8rem;
+main section.prev {
+    transform: translateX(-100%);
+    opacity: 0;
 }
 
 .navigation-buttons {
-    flex-shrink: 0; /* 버튼 영역 크기 고정 */
     display: flex;
     justify-content: space-between;
     padding: 20px 40px;
     border-top: 1px solid #333;
 }
 
-.nav-btn {
-    background-color: #00aaff;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 5px;
+.btn, .nav-btn, .role-btn {
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    color: #e0e0e0;
+    border: 1px solid #333;
+    padding: 12px 28px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
 }
 
-.nav-btn:hover { background-color: #0088cc; }
-.nav-btn:disabled { background-color: #555; cursor: not-allowed; }
+.btn:hover, .nav-btn:hover, .role-btn:hover {
+    background: linear-gradient(145deg, #00aaff, #0077cc);
+    box-shadow: 0 6px 15px rgba(0, 170, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn:disabled, .nav-btn:disabled {
+    background: #2c2c2c;
+    color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+#role-selection, #presenter-controls, #audience-view {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#presenter-controls .btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
 
 .chart-container {
     position: relative;
-    min-height: 300px; /* 최소 높이 지정 */
+    min-height: 300px;
     width: 100%;
-    margin-top: 15px;
-    display: flex; /* 추가 */
-    justify-content: center; /* 추가 */
-    align-items: center; /* 추가 */
-}
-
-/* --- 반응형 디자인 (스마트폰용) --- */
-@media (max-width: 768px) {
-    body {
-        height: 100vh; /* 뷰포트 높이 전체 사용 */
-    }
-    .container {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-    }
-    header {
-        padding: 15px 10px;
-    }
-    header h1 {
-        font-size: 1.6rem;
-    }
-    header h2 {
-        font-size: 1.1rem;
-    }
-    main section {
-        padding: 15px 20px;
-    }
-    section h3 {
-        font-size: 1.5rem;
-    }
-    .question {
-        font-size: 1.1rem;
-    }
-    .navigation-buttons {
-        padding: 15px 20px;
-    }
-    .nav-btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-    }
 }

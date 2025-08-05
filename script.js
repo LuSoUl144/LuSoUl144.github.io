@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const presenterBtn = document.getElementById('presenterBtn');
     const audienceBtn = document.getElementById('audienceBtn');
     const startStopButton = document.getElementById('startStopButton');
+    const pauseResumeButton = document.getElementById('pauseResumeButton');
+    const clearButton = document.getElementById('clearButton');
     const permissionStatus = document.getElementById('permissionStatus');
     const audienceStatus = document.getElementById('audienceStatus');
 
@@ -19,24 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let isChartInitialized = false;
     let sensor, motionListener;
     let isRunning = false;
+    let isPaused = false;
     let lastReading = { x: 0, y: 0, z: 0 };
-    let animationFrameId;
     let socket;
     let userRole = null;
 
-    // --- Slides Navigation ---
-    function showSlide(index) {
-        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-        prevBtn.disabled = index === 0;
-        nextBtn.disabled = index === slides.length - 1;
-        if (slides[index].id === 'demo') {
+    // --- Slides Navigation (with new animation classes) ---
+    function showSlide(newIndex) {
+        const oldIndex = currentSlide;
+        if (newIndex === oldIndex) return;
+
+        slides[oldIndex].classList.remove('active');
+        slides[oldIndex].classList.add('prev');
+
+        slides[newIndex].classList.remove('prev');
+        slides[newIndex].classList.add('active');
+        
+        currentSlide = newIndex;
+
+        prevBtn.disabled = newIndex === 0;
+        nextBtn.disabled = newIndex === slides.length - 1;
+
+        if (slides[newIndex].id === 'demo') {
             initializeChart();
             if (!socket) connectToServer();
         }
     }
-    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(--currentSlide); });
-    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(++currentSlide); });
-    showSlide(currentSlide);
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1); });
+    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(currentSlide + 1); });
+    slides[0].classList.add('active'); // Set initial slide
 
     // --- Chart Logic ---
     function initializeChart() {
@@ -45,9 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chart = new Chart(ctx, {
             type: 'line',
             data: { labels: [], datasets: [
-                { label: 'X', data: [], borderColor: '#ff6384', fill: false, tension: 0.2 }, // Red
-                { label: 'Y', data: [], borderColor: '#4bc0c0', fill: false, tension: 0.2 }, // Green
-                { label: 'Z', data: [], borderColor: '#36a2eb', fill: false, tension: 0.2 }  // Blue
+                { label: 'X', data: [], borderColor: '#ff6384', fill: false, tension: 0.2 },
+                { label: 'Y', data: [], borderColor: '#4bc0c0', fill: false, tension: 0.2 },
+                { label: 'Z', data: [], borderColor: '#36a2eb', fill: false, tension: 0.2 }
             ] },
             options: { responsive: true, maintainAspectRatio: false, /* ... other options ... */ }
         });
@@ -55,12 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateChart(data) {
-        if (!isChartInitialized) return;
+        if (!isChartInitialized || isPaused) return;
         const time = new Date().toLocaleTimeString();
         chart.data.labels.push(time);
-        chart.data.datasets[0].data.push(data.x);
-        chart.data.datasets[1].data.push(data.y);
-        chart.data.datasets[2].data.push(data.z);
+        chart.data.datasets.forEach((dataset, i) => {
+            const key = dataset.label.toLowerCase();
+            dataset.data.push(data[key]);
+        });
         if (chart.data.labels.length > 50) {
             chart.data.labels.shift();
             chart.data.datasets.forEach(dataset => dataset.data.shift());
@@ -68,20 +82,23 @@ document.addEventListener('DOMContentLoaded', () => {
         chart.update('none');
     }
 
+    function clearChart() {
+        if (!isChartInitialized) return;
+        chart.data.labels = [];
+        chart.data.datasets.forEach(dataset => dataset.data = []);
+        chart.update();
+    }
+
     // --- WebSocket Connection ---
     function connectToServer() {
         socket = io("https://sccs-realtime-server.onrender.com");
-
         socket.on('connect', () => serverStatus.textContent = '서버에 연결되었습니다.');
         socket.on('disconnect', () => serverStatus.textContent = '서버 연결이 끊어졌습니다.');
         socket.on('role_assigned', (role) => {
             userRole = role;
             roleSelection.style.display = 'none';
-            if (role === 'presenter') {
-                presenterControls.style.display = 'block';
-            } else {
-                audienceView.style.display = 'block';
-            }
+            if (role === 'presenter') presenterControls.style.display = 'block';
+            else audienceView.style.display = 'block';
         });
         socket.on('role_assign_failure', (message) => alert(message));
         socket.on('graph_update', (data) => {
@@ -90,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 audienceStatus.textContent = '발표자의 데이터를 실시간으로 보고 있습니다.';
             }
         });
+        socket.on('clear_chart', () => clearChart());
     }
 
     presenterBtn.addEventListener('click', () => socket.emit('select_role', 'presenter'));
@@ -98,8 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Sensor Logic (for Presenter) ---
     function sensorLoop() {
         if (!isRunning) return;
-        updateChart(lastReading);
-        socket.emit('sensor_data', lastReading);
+        if (!isPaused) {
+            updateChart(lastReading);
+            socket.emit('sensor_data', lastReading);
+        }
         requestAnimationFrame(sensorLoop);
     }
 
@@ -138,5 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
     startStopButton.addEventListener('click', () => {
         if (isRunning) stopSensor();
         else startSensor();
+    });
+
+    pauseResumeButton.addEventListener('click', () => {
+        isPaused = !isPaused;
+        pauseResumeButton.textContent = isPaused ? '재개' : '일시정지';
+    });
+
+    clearButton.addEventListener('click', () => {
+        clearChart();
+        socket.emit('clear_chart');
     });
 });

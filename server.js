@@ -46,6 +46,13 @@ io.on('connection', (socket) => {
         }
     });
 
+    // 차트 초기화 신호 수신 및 전파
+    socket.on('clear_chart', () => {
+        if (socket.id === presenterId) {
+            socket.broadcast.emit('clear_chart');
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
         if (socket.id === presenterId) {
