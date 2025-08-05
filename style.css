@@ -139,6 +139,36 @@ section h3 {
     color: #fff;
 }
 
+/* Styles for Sensor Section */
+section#sensor {
+    display: flex;
+    align-items: stretch; /* Stretch items to fill the height */
+    padding: 25px 40px; /* Keep original padding */
+}
+
+.sensor-content {
+    flex: 1; /* Take up available space */
+    padding-right: 20px; /* Space between text and image */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.sensor-image-container {
+    flex-shrink: 0; /* Prevent shrinking */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Fill parent height */
+    width: 35%; /* Adjust width as needed to prevent overlap */
+    max-width: 400px; /* Max width for the image container */
+}
+
+.sensor-image-container img {
+    height: 100%; /* Fill container height */
+    width: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure image fits within bounds */
+    border-radius: 8px;
+}
+
 .navigation-buttons {
     display: flex;
     justify-content: space-between;
@@ -246,6 +276,20 @@ main section#demo > #serverStatus {
 
     .conclusion {
         font-size: 1.1rem; /* 모바일에서는 조금 작게 */
+    }
+
+    /* Sensor section responsive */
+    section#sensor {
+        flex-direction: column; /* Stack content and image vertically */
+        align-items: center;
+    }
+    .sensor-content {
+        padding-right: 0;
+        padding-bottom: 20px; /* Add space below content */
+    }
+    .sensor-image-container {
+        width: 80%; /* Adjust width for mobile */
+        height: auto;
     }
 
     main section {
