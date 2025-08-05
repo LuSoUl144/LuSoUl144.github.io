@@ -62,7 +62,7 @@ main section {
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.5s ease-in-out;
+    /* transition: opacity 0.5s ease-in-out; */
     overflow-y: auto; /* 핵심: 내용이 길면 섹션 안에서만 스크롤 */
     justify-content: flex-start; /* 스크롤을 위해 상단 정렬 */
 }
