@@ -1,159 +1,138 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Slides Navigation ---
+    // --- Element Selectors ---
     const slides = document.querySelectorAll('main section');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    let currentSlide = 0;
-
-    // --- Sensor and Chart State ---
+    const serverStatus = document.getElementById('serverStatus');
+    const roleSelection = document.getElementById('role-selection');
+    const presenterControls = document.getElementById('presenter-controls');
+    const audienceView = document.getElementById('audience-view');
+    const presenterBtn = document.getElementById('presenterBtn');
+    const audienceBtn = document.getElementById('audienceBtn');
     const startStopButton = document.getElementById('startStopButton');
     const permissionStatus = document.getElementById('permissionStatus');
-    
-    let chart = null; // 차트 변수, 초기에는 null
-    let isChartInitialized = false; // 차트 초기화 여부 플래그
+    const audienceStatus = document.getElementById('audienceStatus');
+
+    // --- State Variables ---
+    let currentSlide = 0;
+    let chart = null;
+    let isChartInitialized = false;
     let sensor, motionListener;
     let isRunning = false;
     let lastReading = { x: 0, y: 0, z: 0 };
     let animationFrameId;
+    let socket;
+    let userRole = null;
 
-    // --- Chart Initialization Function ---
-    function initializeChart() {
-        if (isChartInitialized) return; // 이미 초기화되었으면 실행 안 함
-
-        const ctx = document.getElementById('accelerometerChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                    { label: 'X', borderColor: '#ff6384', data: [], fill: false, tension: 0.2 },
-                    { label: 'Y', borderColor: '#36a2eb', data: [], fill: false, tension: 0.2 },
-                    { label: 'Z', borderColor: '#4bc0c0', data: [], fill: false, tension: 0.2 }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 200 // 부드러운 애니메이션 효과 추가
-                },
-                plugins: { legend: { labels: { color: '#e0e0e0' } } },
-                scales: {
-                    x: { title: { display: true, text: 'Time', color: '#e0e0e0' }, ticks: { color: '#e0e0e0', maxTicksLimit: 10 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                    y: { title: { display: true, text: 'Acceleration (m/s²)', color: '#e0e0e0' }, suggestedMin: -15, suggestedMax: 15, ticks: { color: '#e0e0e0' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
-                }
-            }
-        });
-        isChartInitialized = true;
-    }
-
-    // --- Slide Display Logic ---
+    // --- Slides Navigation ---
     function showSlide(index) {
         slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
         prevBtn.disabled = index === 0;
         nextBtn.disabled = index === slides.length - 1;
-
-        // ** 핵심: 데모 슬라이드가 활성화될 때 차트를 초기화합니다. **
         if (slides[index].id === 'demo') {
             initializeChart();
+            if (!socket) connectToServer();
         }
     }
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(--currentSlide); });
+    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(++currentSlide); });
+    showSlide(currentSlide);
 
-    prevBtn.addEventListener('click', () => {
-        if (currentSlide > 0) showSlide(--currentSlide);
-    });
-    nextBtn.addEventListener('click', () => {
-        if (currentSlide < slides.length - 1) showSlide(++currentSlide);
-    });
-    showSlide(currentSlide); // 초기 슬라이드 표시
+    // --- Chart Logic ---
+    function initializeChart() {
+        if (isChartInitialized) return;
+        const ctx = document.getElementById('accelerometerChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'X', data: [] }, { label: 'Y', data: [] }, { label: 'Z', data: [] }] },
+            options: { responsive: true, maintainAspectRatio: false, /* ... other options ... */ }
+        });
+        isChartInitialized = true;
+    }
 
-    // --- Sensor Logic ---
-    function updateChart() {
-        if (!isChartInitialized) return; // 차트가 없으면 업데이트 안 함
-
+    function updateChart(data) {
+        if (!isChartInitialized) return;
         const time = new Date().toLocaleTimeString();
         chart.data.labels.push(time);
-        chart.data.datasets[0].data.push(lastReading.x);
-        chart.data.datasets[1].data.push(lastReading.y);
-        chart.data.datasets[2].data.push(lastReading.z);
-
+        chart.data.datasets[0].data.push(data.x);
+        chart.data.datasets[1].data.push(data.y);
+        chart.data.datasets[2].data.push(data.z);
         if (chart.data.labels.length > 50) {
             chart.data.labels.shift();
             chart.data.datasets.forEach(dataset => dataset.data.shift());
         }
         chart.update('none');
-        animationFrameId = requestAnimationFrame(updateChart);
     }
 
-    function stopSensor() {
-        if (sensor && typeof sensor.stop === 'function') {
-            sensor.removeEventListener('reading', handleSensorReading);
-            sensor.stop();
-            sensor = null;
-        }
-        if (motionListener) {
-            window.removeEventListener('devicemotion', motionListener);
-            motionListener = null;
-        }
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-        isRunning = false;
-        startStopButton.textContent = '실시간 데이터 측정 시작';
-        permissionStatus.textContent = '센서가 비활성화되었습니다.';
+    // --- WebSocket Connection ---
+    function connectToServer() {
+        socket = io();
+
+        socket.on('connect', () => serverStatus.textContent = '서버에 연결되었습니다.');
+        socket.on('disconnect', () => serverStatus.textContent = '서버 연결이 끊어졌습니다.');
+        socket.on('role_assigned', (role) => {
+            userRole = role;
+            roleSelection.style.display = 'none';
+            if (role === 'presenter') {
+                presenterControls.style.display = 'block';
+            } else {
+                audienceView.style.display = 'block';
+            }
+        });
+        socket.on('role_assign_failure', (message) => alert(message));
+        socket.on('graph_update', (data) => {
+            if (userRole === 'audience') {
+                updateChart(data);
+                audienceStatus.textContent = '발표자의 데이터를 실시간으로 보고 있습니다.';
+            }
+        });
     }
 
-    const handleSensorReading = () => {
-        if (sensor) lastReading = { x: sensor.x, y: sensor.y, z: sensor.z };
-    };
+    presenterBtn.addEventListener('click', () => socket.emit('select_role', 'presenter'));
+    audienceBtn.addEventListener('click', () => socket.emit('select_role', 'audience'));
+
+    // --- Sensor Logic (for Presenter) ---
+    function sensorLoop() {
+        if (!isRunning) return;
+        updateChart(lastReading);
+        socket.emit('sensor_data', lastReading);
+        requestAnimationFrame(sensorLoop);
+    }
 
     const handleDeviceMotion = (event) => {
         const accel = event.accelerationIncludingGravity || event.acceleration;
-        if (accel && typeof accel.x === 'number') {
-            lastReading = { x: accel.x, y: accel.y, z: accel.z };
-        }
+        if (accel) lastReading = { x: accel.x, y: accel.y, z: accel.z };
     };
 
     function startSensor() {
-        if (!isChartInitialized) {
-            permissionStatus.textContent = '차트가 준비되지 않았습니다. 슬라이드를 다시 방문해주세요.';
-            return;
-        }
-
-        if ('LinearAccelerationSensor' in window) {
-            // ... (Generic Sensor API logic - unchanged) ...
-        } else if (typeof DeviceMotionEvent !== 'undefined') {
-            motionListener = handleDeviceMotion;
-            if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                DeviceMotionEvent.requestPermission().then(state => {
-                    if (state === 'granted') {
-                        window.addEventListener('devicemotion', motionListener);
-                        isRunning = true;
-                        startStopButton.textContent = '실시간 데이터 측정 중지';
-                        permissionStatus.textContent = '센서 활성화됨. 폰을 움직여보세요.';
-                        animationFrameId = requestAnimationFrame(updateChart);
-                    } else {
-                        permissionStatus.textContent = '센서 사용 권한이 거부되었습니다.';
-                    }
-                }).catch(e => permissionStatus.textContent = `권한 오류: ${e.message}`);
-            } else {
-                window.addEventListener('devicemotion', motionListener);
-                isRunning = true;
-                startStopButton.textContent = '실시간 데이터 측정 중지';
-                permissionStatus.textContent = '센서 활성화됨. 폰을 움직여보세요.';
-                animationFrameId = requestAnimationFrame(updateChart);
-            }
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then(state => {
+                if (state === 'granted') {
+                    window.addEventListener('devicemotion', handleDeviceMotion);
+                    isRunning = true;
+                    startStopButton.textContent = '측정 중지';
+                    permissionStatus.textContent = '실시간 데이터를 전송하고 있습니다.';
+                    sensorLoop();
+                }
+            });
         } else {
-            permissionStatus.textContent = '이 기기에서는 가속도 센서를 지원하지 않습니다.';
+            window.addEventListener('devicemotion', handleDeviceMotion);
+            isRunning = true;
+            startStopButton.textContent = '측정 중지';
+            permissionStatus.textContent = '실시간 데이터를 전송하고 있습니다.';
+            sensorLoop();
         }
     }
 
+    function stopSensor() {
+        isRunning = false;
+        window.removeEventListener('devicemotion', handleDeviceMotion);
+        startStopButton.textContent = '측정 시작';
+        permissionStatus.textContent = '전송이 중지되었습니다.';
+    }
+
     startStopButton.addEventListener('click', () => {
-        if (isRunning) {
-            stopSensor();
-        } else {
-            startSensor();
-        }
+        if (isRunning) stopSensor();
+        else startSensor();
     });
 });

@@ -46,11 +46,25 @@
 
             <section id="demo">
                 <h3>4. 간단 시연 실험 (3분)</h3>
+                <div id="role-selection">
+                    <p>참여 모드를 선택하세요:</p>
+                    <button id="presenterBtn" class="role-btn">발표자로 참여</button>
+                    <button id="audienceBtn" class="role-btn">관객으로 참여</button>
+                </div>
+
+                <div id="presenter-controls" style="display: none;">
+                    <button id="startStopButton">실시간 데이터 측정 시작</button>
+                    <p id="permissionStatus">센서 사용 권한을 허용해주세요.</p>
+                </div>
+
+                <div id="audience-view" style="display: none;">
+                    <p id="audienceStatus">발표자의 발표 시작을 기다리는 중입니다...</p>
+                </div>
+
                 <div class="chart-container">
                     <canvas id="accelerometerChart"></canvas>
                 </div>
-                <button id="startStopButton">실시간 데이터 측정 시작</button>
-                <p id="permissionStatus">센서 사용 권한을 허용해주세요.</p>
+                <p id="serverStatus">서버에 연결 중...</p>
             </section>
 
             <section id="application">
