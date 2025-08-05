@@ -96,8 +96,14 @@ main section {
     margin-top: 15px;
 }
 
+main section#demo {
+    display: flex;
+    flex-direction: column;
+}
+
 .chart-container {
     position: relative;
-    min-height: 300px;
     width: 100%;
+    flex-grow: 1; /* This makes the chart container fill the remaining space */
+    min-height: 200px; /* Ensure a minimum height */
 }
