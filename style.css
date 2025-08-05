@@ -16,8 +16,8 @@ body {
 }
 
 .container {
-    width: 90%;
-    max-width: 960px;
+    width: 95%; /* Increased from 90% */
+    max-width: 1400px; /* Increased from 960px */
     height: 85vh;
     display: flex;
     flex-direction: column;
