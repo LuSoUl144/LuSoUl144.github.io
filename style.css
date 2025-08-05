@@ -147,11 +147,11 @@ section#sensor {
 
 .mems-float-right {
     float: right;
-    width: 40%; /* Adjust as needed */
-    max-width: 350px; /* Max width for the image */
+    width: 45%; /* Adjust as needed - 더 크게 */
+    max-width: 400px; /* Max width for the image - 더 크게 */
     height: auto;
     margin-left: 20px; /* Space between text and image */
-    margin-top: 50px; /* 이미지를 아래로 이동 */
+    margin-top: 80px; /* 이미지를 더 아래로 이동 */
     margin-bottom: 10px; /* Space below image */
     border-radius: 8px;
 }
