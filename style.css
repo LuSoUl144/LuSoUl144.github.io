@@ -93,13 +93,41 @@ section h3 {
     margin-bottom: 20px;
 }
 
-.intro-image {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    width: 150px; /* 이미지 크기 조절 */
+/* New styles for the image grid */
+.intro-grid {
+    display: flex;
+    justify-content: space-around; /* Distribute items evenly */
+    align-items: flex-start; /* Align items to the top */
+    flex-wrap: wrap; /* Allow items to wrap to the next line on smaller screens */
+    gap: 20px; /* Space between items */
+    margin-top: 30px;
+}
+
+.intro-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 30%; /* Adjust width to fit three items per row, with some gap */
+    max-width: 200px; /* Max width for each item */
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.intro-item p {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+.intro-item img {
+    width: 100%; /* Image fills its container */
     height: auto;
-    z-index: 10;
+    max-width: 150px; /* Max width for the image */
+    border-radius: 5px;
 }
 
 .navigation-buttons {
@@ -198,10 +226,13 @@ main section#demo > #serverStatus {
         font-size: 1.5rem; /* 모바일에서는 조금 작게 */
     }
 
-    .intro-image {
-        width: 100px; /* 모바일에서는 이미지 크기 조절 */
-        bottom: 10px;
-        left: 10px;
+    .intro-grid {
+        flex-direction: column; /* Stack items vertically on small screens */
+        align-items: center;
+    }
+    .intro-item {
+        width: 80%; /* Make items wider on small screens */
+        max-width: 300px;
     }
 
     main section {
