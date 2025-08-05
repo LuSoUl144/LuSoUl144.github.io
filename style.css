@@ -107,6 +107,9 @@ section h3 {
     min-height: 300px; /* 최소 높이 지정 */
     width: 100%;
     margin-top: 15px;
+    display: flex; /* 추가 */
+    justify-content: center; /* 추가 */
+    align-items: center; /* 추가 */
 }
 
 /* --- 반응형 디자인 (스마트폰용) --- */
