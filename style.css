@@ -36,20 +36,21 @@ body {
     }
 }
 
-header {
+.title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #333;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-header h1 {
+.title-slide h1 {
     margin: 0;
     font-size: 2.2rem;
     color: #fff;
 }
 
-header h2 {
+.title-slide h2 {
     margin: 0;
     font-size: 1.3rem;
     font-weight: 300;
@@ -145,4 +146,43 @@ main section#demo > #serverStatus {
     width: 100%;
     flex-grow: 1; /* This makes the chart container fill all available vertical space */
     min-height: 0; /* Override previous min-height to allow full flexibility */
+}
+
+#accelerometerChart {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+#serverStatus, #permissionStatus, #audienceStatus {
+    text-align: center;
+    margin-top: 15px;
+    font-style: italic;
+    color: #aaa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
+    .title-slide h1 { font-size: 1.8rem; }
+    .title-slide h2 { font-size: 1.1rem; }
+    section h3 { font-size: 1.5rem; }
+
+    main section {
+        padding: 20px;
+    }
+
+    .navigation-buttons {
+        padding: 15px 20px;
+    }
+
+    .btn, .nav-btn, .role-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
 }

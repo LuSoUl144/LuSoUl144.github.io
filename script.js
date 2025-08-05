@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selectors ---
-    const mainHeader = document.getElementById('main-header');
     const slides = document.querySelectorAll('main section');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -36,9 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update button states
         prevBtn.disabled = slideIndex === 0;
         nextBtn.disabled = slideIndex === slides.length - 1;
-
-        // Show header only on the first slide
-        mainHeader.style.display = slideIndex === 0 ? 'block' : 'none';
 
         // Initialize chart or connect to server if on the demo slide
         if (slides[slideIndex].id === 'demo') {
