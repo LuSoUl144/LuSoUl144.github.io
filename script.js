@@ -44,7 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = document.getElementById('accelerometerChart').getContext('2d');
         chart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'X', data: [] }, { label: 'Y', data: [] }, { label: 'Z', data: [] }] },
+            data: { labels: [], datasets: [
+                { label: 'X', data: [], borderColor: '#ff6384', fill: false, tension: 0.2 }, // Red
+                { label: 'Y', data: [], borderColor: '#4bc0c0', fill: false, tension: 0.2 }, // Green
+                { label: 'Z', data: [], borderColor: '#36a2eb', fill: false, tension: 0.2 }  // Blue
+            ] },
             options: { responsive: true, maintainAspectRatio: false, /* ... other options ... */ }
         });
         isChartInitialized = true;
