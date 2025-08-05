@@ -141,33 +141,45 @@ section h3 {
 
 /* Styles for Sensor Section */
 section#sensor {
-    display: flex;
-    align-items: stretch; /* Stretch items to fill the height */
-    padding: 25px 40px; /* Keep original padding */
+    /* Remove flex properties */
+    /* padding: 25px 40px; Keep original padding */
 }
 
+.mems-float-right {
+    float: right;
+    width: 30%; /* Adjust as needed */
+    max-width: 250px; /* Max width for the image */
+    height: auto;
+    margin-left: 20px; /* Space between text and image */
+    margin-bottom: 10px; /* Space below image */
+    border-radius: 8px;
+}
+
+/* Remove sensor-content and sensor-image-container styles */
+/*
 .sensor-content {
-    flex: 1; /* Take up available space */
-    padding-right: 20px; /* Space between text and image */
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    flex: 1;
+    padding-right: 20px;
+    overflow-y: auto;
 }
 
 .sensor-image-container {
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%; /* Fill parent height */
-    width: 35%; /* Adjust width as needed to prevent overlap */
-    max-width: 400px; /* Max width for the image container */
+    height: 100%;
+    width: 35%;
+    max-width: 400px;
 }
 
 .sensor-image-container img {
-    height: 100%; /* Fill container height */
-    width: auto; /* Maintain aspect ratio */
-    object-fit: contain; /* Ensure image fits within bounds */
+    height: 100%;
+    width: auto;
+    object-fit: contain;
     border-radius: 8px;
 }
+*/
 
 .navigation-buttons {
     display: flex;
@@ -283,13 +295,10 @@ main section#demo > #serverStatus {
         flex-direction: column; /* Stack content and image vertically */
         align-items: center;
     }
-    .sensor-content {
-        padding-right: 0;
-        padding-bottom: 20px; /* Add space below content */
-    }
-    .sensor-image-container {
+    .mems-float-right {
+        float: none; /* Remove float on mobile */
         width: 80%; /* Adjust width for mobile */
-        height: auto;
+        margin: 20px auto; /* Center image */
     }
 
     main section {
