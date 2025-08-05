@@ -34,6 +34,19 @@ header {
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
+header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    color: #fff;
+}
+
+header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: #ff8c00; /* DarkOrange */
+}
+
 main {
     flex-grow: 1;
     position: relative;
@@ -48,6 +61,14 @@ main section {
     box-sizing: border-box;
     overflow-y: auto;
     transition: transform 0.4s ease-in-out;
+}
+
+section h3 {
+    color: #ff8c00; /* DarkOrange */
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-size: 1.8rem;
 }
 
 .navigation-buttons {
@@ -71,8 +92,8 @@ main section {
 }
 
 .btn:hover, .nav-btn:hover, .role-btn:hover {
-    background: linear-gradient(145deg, #00aaff, #0077cc);
-    box-shadow: 0 6px 15px rgba(0, 170, 255, 0.3);
+    background: linear-gradient(145deg, #ff8c00, #e67e22);
+    box-shadow: 0 6px 15px rgba(255, 140, 0, 0.4);
     transform: translateY(-2px);
 }
 
