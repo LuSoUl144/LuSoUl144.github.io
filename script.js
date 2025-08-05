@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
         prevBtn.disabled = newIndex === 0;
         nextBtn.disabled = newIndex === slides.length - 1;
 
+        // Show header only on the first slide
+        mainHeader.style.display = newIndex === 0 ? 'block' : 'none';
+
         if (slides[newIndex].id === 'demo') {
             initializeChart();
             if (!socket) connectToServer();
