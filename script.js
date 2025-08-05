@@ -38,8 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.disabled = slideIndex === slides.length - 1;
 
         // Show header only on the first slide
-        mainHeader.style.transform = slideIndex === 0 ? 'translateY(0)' : 'translateY(-150%)';
-        mainHeader.style.opacity = slideIndex === 0 ? '1' : '0';
+        mainHeader.style.display = slideIndex === 0 ? 'block' : 'none';
 
         // Initialize chart or connect to server if on the demo slide
         if (slides[slideIndex].id === 'demo') {
