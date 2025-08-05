@@ -99,11 +99,20 @@ main section {
 main section#demo {
     display: flex;
     flex-direction: column;
+    height: 100%; /* Ensure the section itself takes full height */
+}
+
+main section#demo > h3,
+main section#demo > #role-selection,
+main section#demo > #presenter-controls,
+main section#demo > #audience-view,
+main section#demo > #serverStatus {
+    flex-shrink: 0; /* Prevent these elements from shrinking */
 }
 
 .chart-container {
     position: relative;
     width: 100%;
-    flex-grow: 1; /* This makes the chart container fill the remaining space */
-    min-height: 200px; /* Ensure a minimum height */
+    flex-grow: 1; /* This makes the chart container fill all available vertical space */
+    min-height: 0; /* Override previous min-height to allow full flexibility */
 }
